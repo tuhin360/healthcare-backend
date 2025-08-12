@@ -1,16 +1,21 @@
 // service: handle data process, query
 
 import { PrismaClient, UserRole } from "../../../generated/prisma";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 const createAdmin = async (data: any) => {
   console.log(data);
 
+  // Hash password
+  const hashedPassword: string = await bcrypt.hash(data.password, 10);
+  // console.log(hashedPassword);
+
   // Prepare user data for creation
   const userData = {
     email: data.admin.email,
-    password: data.password,
+    password: hashedPassword,
     role: UserRole.ADMIN,
   };
 
