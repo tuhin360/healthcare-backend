@@ -5,6 +5,6 @@ import { userController } from "./user.controller";
 
 const router: Router = express.Router();
 
-router.get("/", userController.createAdmin);
+router.post("/", userController.createAdmin);
 
 export const userRoutes: Router = router;
