@@ -6,10 +6,10 @@ import { adminFilterableFields } from "./admin.constant";
 const getAllFromDB = async (req: Request, res: Response) => {
   try {
     const filters = pick(req.query, adminFilterableFields);
-    const options = pick(req.query, ["limit", "page"]); // Pagination
+    const options = pick(req.query, ["limit", "page", 'sortBy', 'sortOrder']); // Pagination
     console.log("options", options);
 
-    console.log(req.query);
+    // console.log(req.query);
 
     const result = await AdminService.getAllFromDB(filters, options);
 
