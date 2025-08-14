@@ -1,10 +1,14 @@
 import { Prisma, PrismaClient } from "../../../generated/prisma";
+import { adminSearchableFields } from "./admin.constant";
 
 const prisma = new PrismaClient();
 
-const getAllFromDB = async (params: any) => {
+const getAllFromDB = async (params: any, options: any) => {
   // Destructure searchTerm and remaining filter data from params
   const { searchTerm, ...filterData } = params;
+
+  // Destructure limit and page from options
+  const { limit, page } = options;
 
   // Array for storing all filter conditions
   const andConditions: Prisma.AdminWhereInput[] = [];
@@ -12,7 +16,6 @@ const getAllFromDB = async (params: any) => {
   console.log(filterData); // For debugging: shows exact filter inputs
 
   // 1️⃣ Search by keyword in specific fields (name, email)
-  const adminSearchableFields = ["name", "email"];
   if (searchTerm) {
     andConditions.push({
       OR: adminSearchableFields.map((field) => ({
@@ -43,6 +46,8 @@ const getAllFromDB = async (params: any) => {
   // 4️⃣ Fetch data from DB according to the conditions
   const result = await prisma.admin.findMany({
     where: whereConditions,
+    skip: (Number(page) - 1) * limit, // Pagination
+    take: Number(limit), // Pagination
   });
 
   return result; // Return final result
