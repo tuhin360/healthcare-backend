@@ -1,9 +1,8 @@
 // service: handle data process, query
 
-import { PrismaClient, UserRole } from "../../../generated/prisma";
+import { UserRole } from "../../../generated/prisma";
 import bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
+import prisma from "../../../Shared/prisma";
 
 const createAdmin = async (data: any) => {
   console.log(data);
