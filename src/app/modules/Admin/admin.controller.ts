@@ -1,19 +1,19 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service";
 import pick from "../../../Shared/pick";
 import { adminFilterableFields } from "./admin.constant";
 import sendResponse from "../../../Shared/sendResponse";
 import status from "http-status";
 
-
-
-const getAllFromDB = async (req: Request, res: Response) => {
+const getAllFromDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const filters = pick(req.query, adminFilterableFields);
     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]); // Pagination
     console.log("options", options);
-
-    // console.log(req.query);
 
     const result = await AdminService.getAllFromDB(filters, options);
 
@@ -25,15 +25,15 @@ const getAllFromDB = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error)?.name || "Failed to fetch admins",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const getByIdFromDB = async (req: Request, res: Response) => {
+const getByIdFromDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   // console.log(req.params.id);`
   const { id } = req.params;
   try {
@@ -45,21 +45,20 @@ const getByIdFromDB = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error)?.name || "Failed to fetch admin by Id",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const updateIntoDB = async (req: Request, res: Response) => {
+const updateIntoDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
-  //  console.log(id);
-  //  console.log("data", req.body);
-  const result = await AdminService.updateIntoDB(id, req.body);
+
   try {
-    await AdminService.updateIntoDB(id, req.body);
+    const result = await AdminService.updateIntoDB(id, req.body); // only once
+
     sendResponse(res, {
       statusCode: status.OK,
       success: true,
@@ -67,15 +66,16 @@ const updateIntoDB = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error)?.name || "Failed to update admin",
-      error: error,
-    });
+    next(error); // pass to global error handler
   }
 };
 
-const deleteFromDB = async (req: Request, res: Response) => {
+
+const deleteFromDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
 
   try {
@@ -87,15 +87,15 @@ const deleteFromDB = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error)?.name || "Failed to delete admin by Id",
-      error: error,
-    });
+    next(error);
   }
 };
 
-const softDeleteFromDB = async (req: Request, res: Response) => {
+const softDeleteFromDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   console.log(id);
 
@@ -108,11 +108,7 @@ const softDeleteFromDB = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: (error as Error)?.name || "Failed to delete admin by Id",
-      error: error,
-    });
+    next(error);
   }
 };
 
