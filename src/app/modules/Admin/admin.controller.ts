@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { AdminService } from "./admin.service";
 import pick from "../../../Shared/pick";
 import { adminFilterableFields } from "./admin.constant";
+import sendResponse from "../../../Shared/sendResponse";
+
+
 
 const getAllFromDB = async (req: Request, res: Response) => {
   try {
@@ -13,7 +16,8 @@ const getAllFromDB = async (req: Request, res: Response) => {
 
     const result = await AdminService.getAllFromDB(filters, options);
 
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admins data fetched successfully",
       meta: result.meta,
@@ -33,9 +37,10 @@ const getByIdFromDB = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await AdminService.getByIdFromDB(id);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
-      message: "Admin data fetched by Id successfully",
+      message: "Admin fetched by Id successfully",
       data: result,
     });
   } catch (error) {
@@ -54,7 +59,8 @@ const updateIntoDB = async (req: Request, res: Response) => {
   const result = await AdminService.updateIntoDB(id, req.body);
   try {
     await AdminService.updateIntoDB(id, req.body);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin data updated successfully",
       data: result,
@@ -73,7 +79,8 @@ const deleteFromDB = async (req: Request, res: Response) => {
 
   try {
     const result = await AdminService.deleteFromDB(id);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin data deleted successfully",
       data: result,
@@ -93,7 +100,8 @@ const softDeleteFromDB = async (req: Request, res: Response) => {
 
   try {
     const result = await AdminService.softDeleteFromDB(id);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "Admin data deleted successfully",
       data: result,
