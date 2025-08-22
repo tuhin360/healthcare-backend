@@ -48,8 +48,28 @@ const getByIdFromDB = async (req: Request, res: Response) => {
   }
 };
 
+const updateIntoDB = async(req: Request, res: Response)=> {
+   const { id } = req.params;
+  //  console.log(id);
+  //  console.log("data", req.body);
+  try {
+    await AdminService.updateIntoDB(id, req.body);
+    res.status(200).json({
+      success: true,
+      message: "Admin data updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: (error as Error)?.name || "Failed to update admin",
+      error: error,
+    });
+  }
+}
+
 // Export controller so it can be used in routes
 export const AdminController = {
   getAllFromDB,
   getByIdFromDB,
+  updateIntoDB,
 };
