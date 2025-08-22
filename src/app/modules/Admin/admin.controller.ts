@@ -87,10 +87,31 @@ const deleteFromDB = async (req: Request, res: Response) => {
   }
 };
 
+const softDeleteFromDB = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  console.log(id);
+
+  try {
+    const result = await AdminService.softDeleteFromDB(id);
+    res.status(200).json({
+      success: true,
+      message: "Admin data deleted successfully",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: (error as Error)?.name || "Failed to delete admin by Id",
+      error: error,
+    });
+  }
+};
+
 // Export controller so it can be used in routes
 export const AdminController = {
   getAllFromDB,
   getByIdFromDB,
   updateIntoDB,
   deleteFromDB,
+  softDeleteFromDB,
 };
