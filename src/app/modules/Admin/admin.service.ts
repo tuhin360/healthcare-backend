@@ -10,8 +10,8 @@ const getAllFromDB = async (params: IAdminFilterRequest, options: IPaginationOpt
   // Destructure searchTerm and remaining filter data from params
   const { searchTerm, ...filterData } = params;
 
-  // Destructure limit and page from options
-  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  // Destructure limit, skip and page from options
+  const { page, limit, skip } = paginationHelper.calculatePagination(options as any);
 
   // Array for storing all filter conditions
   const andConditions: Prisma.AdminWhereInput[] = [];

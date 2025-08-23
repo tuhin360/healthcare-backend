@@ -68,7 +68,6 @@ const softDeleteFromDB = async (req: Request, res: Response) => {
   });
 };
 
-// Export controller so it can be used in routes
 export const AdminController = {
   getAllFromDB,
   getByIdFromDB,
