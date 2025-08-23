@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 import { Prisma } from "../../generated/prisma";
 
-
 const globalErrorHandler = (
   error: any,
   req: Request,
@@ -11,7 +10,14 @@ const globalErrorHandler = (
 ) => {
   let message = error.message || "Something went wrong";
 
-  // Prisma known errors
+  // ✅ Handle ZodError
+  if (error.name === "ZodError" && error.issues) {
+    message = error.issues
+      .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+      .join(", ");
+  }
+
+  // ✅ Handle Prisma known errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       message = "No record found with the given ID";
