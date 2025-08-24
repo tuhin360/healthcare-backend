@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 
 const loginUser = async (payload: { email: string; password: string }) => {
-  // console.log("user logged in", payload);
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: payload.email,
@@ -27,8 +26,6 @@ const loginUser = async (payload: { email: string; password: string }) => {
     "5m"
   );
 
-  //   console.log(accessToken);
-
   const refreshToken = jwtHelpers.generateToken(
     {
       email: userData.email,
@@ -45,6 +42,11 @@ const loginUser = async (payload: { email: string; password: string }) => {
   };
 };
 
+const refreshToken = async (token: string) => {
+  console.log("refreshToken", token);
+};
+
 export const AuthServices = {
   loginUser,
+  refreshToken,
 };
