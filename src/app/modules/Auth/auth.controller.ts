@@ -38,7 +38,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     statusCode: status.OK,
     success: true,
     message: "User logged in successfully",
-    data: null,
+    data: result,
     // data: {
     //   accessToken: result.accessToken,
     //   needPasswordChange: result.needPasswordChange,
