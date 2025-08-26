@@ -15,4 +15,10 @@ router.post(
   AuthController.changePassword
 );
 
+
+router.post(
+  "/forgot-password",
+  AuthController.forgotPassword
+);
+
 export const AuthRoutes: Router = router;
