@@ -15,14 +15,14 @@ const globalErrorHandler = (
   const statusCode = error.statusCode || status.INTERNAL_SERVER_ERROR;
 
 
-  // ✅ Handle ZodError
+  // Handle ZodError
   if (error.name === "ZodError" && error.issues) {
     message = error.issues
       .map((err: any) => `${err.path.join(".")}: ${err.message}`)
       .join(", ");
   }
 
-  // ✅ Handle Prisma known errors
+  // Handle Prisma known errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       message = "No record found with the given ID";
