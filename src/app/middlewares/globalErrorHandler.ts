@@ -11,6 +11,10 @@ const globalErrorHandler = (
 ) => {
   let message = error.message || "Something went wrong";
 
+   // যদি error এর মধ্যে statusCode থাকে (যেমন ApiError এ থাকে) তাহলে সেটাই use করবো
+  const statusCode = error.statusCode || status.INTERNAL_SERVER_ERROR;
+
+
   // ✅ Handle ZodError
   if (error.name === "ZodError" && error.issues) {
     message = error.issues
@@ -30,6 +34,7 @@ const globalErrorHandler = (
     message,
     error: {
       name: error.name,
+      statusCode,
       code: error.code,
       meta: error.meta,
     },
