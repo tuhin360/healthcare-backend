@@ -5,6 +5,8 @@ import { UserStatus } from "../../../generated/prisma";
 import config from "../../../config";
 import { Secret } from "jsonwebtoken";
 import emailSender from "./emailSender";
+import status from "http-status";
+import ApiError from "../../errors/ApiErrors";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -152,9 +154,48 @@ const forgotPassword = async (payload: { email: string }) => {
   console.log(resetPasswordLink);
 };
 
+const resetPassword = async (
+  token: string,
+  payload: { id: string; password: string }
+) => {
+  console.log({ token, payload });
+  const userData = await prisma.user.findFirstOrThrow({
+    where: {
+      id: payload.id,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const isValidToken = jwtHelpers.verifyToken(
+    token,
+    config.jwt.reset_password_token_secret as Secret
+  );
+  // console.log(isValidToken);
+  if (!isValidToken) {
+    throw new ApiError(status.FORBIDDEN, "Forbidden!");
+  }
+
+  // hash password
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+  // update in database
+  await prisma.user.update({
+    where: { id: payload.id },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+  return {
+    message: "Password has been reset successfully!",
+  };
+};
+
+
+ 
 export const AuthServices = {
   loginUser,
   refreshToken,
   changePassword,
   forgotPassword,
+  resetPassword,
 };
