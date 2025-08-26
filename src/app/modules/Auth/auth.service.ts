@@ -85,10 +85,34 @@ const changePassword = async (user: any, payload: any) => {
       email: user.email,
     },
   });
+
+  const isCorrectPassword: boolean = await bcrypt.compare(
+    payload.oldPassword,
+    userData.password
+  );
+
+  if (!isCorrectPassword) throw new Error("Password Incorrect!");
+
+  const hashedPassword: string = await bcrypt.hash(payload.newPassword, 10);
+
+  await prisma.user.update({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+
+  return{
+    message:"Password changed successfully!"
+  }
 };
 
 export const AuthServices = {
   loginUser,
   refreshToken,
-  changePassword
+  changePassword,
 };
