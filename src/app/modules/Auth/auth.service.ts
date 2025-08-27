@@ -177,21 +177,16 @@ const resetPassword = async (
 
   // hash password
   const hashedPassword = await bcrypt.hash(payload.password, 10);
+
   // update in database
   await prisma.user.update({
     where: { id: payload.id },
     data: {
       password: hashedPassword,
-      needPasswordChange: false,
     },
   });
-  return {
-    message: "Password has been reset successfully!",
-  };
 };
 
-
- 
 export const AuthServices = {
   loginUser,
   refreshToken,
