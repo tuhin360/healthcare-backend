@@ -4,8 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { userService } from "./user.service";
 
 const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
-    // console.log("file:",req.file);
-    // console.log("data:",req.body.data);
+    
   try {
     const result = await userService.createAdmin(req);
     res.status(200).json({
