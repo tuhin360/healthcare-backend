@@ -12,7 +12,7 @@ const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
       message: "Admin created successfully",
       data: result,
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error?.name || "Failed to create admin",
@@ -30,7 +30,7 @@ const createDoctor = async (req: Request, res: Response, next: NextFunction) => 
       message: "Doctor created successfully",
       data: result,
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error?.name || "Failed to create doctor",
