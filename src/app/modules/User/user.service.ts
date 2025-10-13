@@ -1,6 +1,12 @@
 // service: handle data process, query
 
-import { Admin, Doctor, Patient, Prisma, UserRole } from "../../../generated/prisma";
+import {
+  Admin,
+  Doctor,
+  Patient,
+  Prisma,
+  UserRole,
+} from "../../../generated/prisma";
 import bcrypt from "bcrypt";
 import prisma from "../../../Shared/prisma";
 import { fileUploader } from "../../../helpers/fileUploader";
@@ -118,7 +124,9 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
   const { searchTerm, ...filterData } = params;
 
   // Destructure limit, skip and page from options
-  const { page, limit, skip } = paginationHelper.calculatePagination(options as any);
+  const { page, limit, skip } = paginationHelper.calculatePagination(
+    options as any
+  );
 
   // Array for storing all filter conditions
   const andConditions: Prisma.UserWhereInput[] = [];
@@ -149,9 +157,8 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
   }
 
   // 3️⃣ Merge all search and filter conditions
-  const whereConditions: Prisma.UserWhereInput = andConditions.length > 0
-    ? { AND: andConditions }
-    : {};
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   // 4️⃣ Fetch data from DB according to the conditions
   const result = await prisma.user.findMany({
@@ -164,6 +171,18 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
         : {
             createdAt: "desc",
           },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      needPasswordChange: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      admin: true,
+      doctor: true,
+      patient: true,
+    },
   });
 
   const total = await prisma.user.count({ where: whereConditions });
@@ -182,5 +201,5 @@ export const userService = {
   createAdmin,
   createDoctor,
   createPatient,
-  getAllFromDB
+  getAllFromDB,
 };
