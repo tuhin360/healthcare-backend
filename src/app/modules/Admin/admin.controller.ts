@@ -7,7 +7,7 @@ import status from "http-status";
 import catchAsync from "../../../Shared/catchAsync";
 
 
-const getAllFromDB: RequestHandler = catchAsync(async (req, res) => {
+const getAllFromDB: RequestHandler = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, adminFilterableFields);
   const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]); // Pagination
   console.log("options", options);

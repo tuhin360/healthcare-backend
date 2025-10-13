@@ -1,11 +1,14 @@
 // service: handle data process, query
 
-import { Admin, Doctor, Patient, UserRole } from "../../../generated/prisma";
+import { Admin, Doctor, Patient, Prisma, UserRole } from "../../../generated/prisma";
 import bcrypt from "bcrypt";
 import prisma from "../../../Shared/prisma";
 import { fileUploader } from "../../../helpers/fileUploader";
 import { IFile } from "../../interfaces/file";
 import { Request } from "express";
+import { IPaginationOptions } from "../../interfaces/pagination";
+import { paginationHelper } from "../../../helpers/paginationHelper";
+import { userSearchableFields } from "./user.constant";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
   const file = req.file as IFile;
@@ -109,8 +112,75 @@ const createPatient = async (req: Request): Promise<Patient> => {
   return result;
 };
 
+const getAllFromDB = async (params: any, options: IPaginationOptions) => {
+  console.log(options);
+  // Destructure searchTerm and remaining filter data from params
+  const { searchTerm, ...filterData } = params;
+
+  // Destructure limit, skip and page from options
+  const { page, limit, skip } = paginationHelper.calculatePagination(options as any);
+
+  // Array for storing all filter conditions
+  const andConditions: Prisma.UserWhereInput[] = [];
+
+  console.log(filterData); // For debugging: shows exact filter inputs
+
+  // 1️⃣ Search by keyword in specific fields (name, email)
+  if (searchTerm) {
+    andConditions.push({
+      OR: userSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm, // partial match
+          mode: "insensitive", // ignore case (uppercase/lowercase)
+        },
+      })),
+    });
+  }
+
+  // 2️⃣ Search by exact match in specific fields (from filterData)
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key], // strict match
+        },
+      })),
+    });
+  }
+
+  // 3️⃣ Merge all search and filter conditions
+  const whereConditions: Prisma.UserWhereInput = andConditions.length > 0
+    ? { AND: andConditions }
+    : {};
+
+  // 4️⃣ Fetch data from DB according to the conditions
+  const result = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : {
+            createdAt: "desc",
+          },
+  });
+
+  const total = await prisma.user.count({ where: whereConditions });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  }; // Return final result
+};
+
 export const userService = {
   createAdmin,
   createDoctor,
   createPatient,
+  getAllFromDB
 };
