@@ -6,6 +6,7 @@ import {
   Patient,
   Prisma,
   UserRole,
+  UserStatus,
 } from "../../../generated/prisma";
 import bcrypt from "bcrypt";
 import prisma from "../../../Shared/prisma";
@@ -197,9 +198,23 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
   }; // Return final result
 };
 
+const changeProfileStatus = async (id: string, status: UserStatus ) => {
+  const userData = await prisma.user.findFirstOrThrow({
+    where: { id }
+  });
+
+  const updateUserStatus = await prisma.user.update({
+    where: { id },
+    data: status 
+  });
+
+  return updateUserStatus;
+};
+
 export const userService = {
   createAdmin,
   createDoctor,
   createPatient,
   getAllFromDB,
+  changeProfileStatus,
 };
