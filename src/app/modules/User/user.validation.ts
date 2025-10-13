@@ -42,7 +42,21 @@ const createDoctor = z.object({
 });
 
 
+const createPatient = z.object({
+  password: z.string().nonempty({ message: "Password is required" }),
+  patient: z.object({
+    name: z.string().nonempty({ message: "Name is required" }),
+    email: z.string().nonempty({ message: "Email is required" }),
+    contactNumber: z
+      .string()
+      .nonempty({ message: "Contact number is required" }),
+    address: z.string().optional(),
+  }),
+});
+
+
 export const userValidation = {
   createAdmin,
-  createDoctor
+  createDoctor,
+  createPatient
 };

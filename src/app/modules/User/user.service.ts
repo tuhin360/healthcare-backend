@@ -1,13 +1,14 @@
 // service: handle data process, query
 
-import { UserRole } from "../../../generated/prisma";
+import { Admin, Doctor, Patient, UserRole } from "../../../generated/prisma";
 import bcrypt from "bcrypt";
 import prisma from "../../../Shared/prisma";
 import { fileUploader } from "../../../helpers/fileUploader";
 import { IFile } from "../../interfaces/file";
+import { Request } from "express";
 
-const createAdmin = async (req: any) => {
-  const file: IFile = req.file;
+const createAdmin = async (req: Request): Promise<Admin> => {
+  const file = req.file as IFile;
 
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
@@ -40,8 +41,8 @@ const createAdmin = async (req: any) => {
   return result;
 };
 
-const createDoctor = async (req: any) => {
-  const file: IFile = req.file;
+const createDoctor = async (req: Request): Promise<Doctor> => {
+  const file = req.file as IFile;
 
   if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
@@ -58,7 +59,7 @@ const createDoctor = async (req: any) => {
     role: UserRole.DOCTOR,
   };
 
-  // Create user and admin in a single transaction
+  // Create user and doctor in a single transaction
   const result = await prisma.$transaction(async (transactionClient) => {
     await transactionClient.user.create({
       data: userData,
@@ -74,7 +75,42 @@ const createDoctor = async (req: any) => {
   return result;
 };
 
+const createPatient = async (req: Request): Promise<Patient> => {
+  const file = req.file as IFile;
+
+  if (file) {
+    const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
+    req.body.patient.profilePhoto = uploadToCloudinary?.secure_url;
+  }
+
+  // Hash password
+  const hashedPassword: string = await bcrypt.hash(req.body.password, 10);
+
+  // Prepare user data for creation
+  const userData = {
+    email: req.body.patient.email,
+    password: hashedPassword,
+    role: UserRole.PATIENT,
+  };
+
+  // Create user and patient in a single transaction
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.user.create({
+      data: userData,
+    });
+
+    const createdPatientData = await transactionClient.patient.create({
+      data: req.body.patient,
+    });
+
+    return createdPatientData; // Return patient record
+  });
+
+  return result;
+};
+
 export const userService = {
   createAdmin,
-  createDoctor
+  createDoctor,
+  createPatient,
 };
