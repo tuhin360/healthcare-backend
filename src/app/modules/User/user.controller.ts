@@ -7,6 +7,7 @@ import pick from "../../../Shared/pick";
 import { userFilterableFields } from "./user.constant";
 import sendResponse from "../../../Shared/sendResponse";
 import status from "http-status";
+import { IAuthUser } from "../../interfaces/common";
 
 const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -84,7 +85,7 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
 
 const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await userService.changeProfileStatus(id, req.body);
+  const result = await userService.changeProfileStatus(id as string, req.body);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -93,37 +94,35 @@ const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getMyProfile = catchAsync(async (req: Request, res: Response) => {
-  // console.log(req.user);
+const getMyProfile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
 
-  const user = req.user;
+    const result = await userService.getMyProfile(user as IAuthUser);
 
-  const result = await userService.getMyProfile(user);
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: "My profile data fetched successfully",
+      data: result,
+    });
+  }
+);
 
-  sendResponse(res, {
-    statusCode: status.OK,
-    success: true,
-    message: "My profile data fetched successfully",
-    data: result,
-  });
-});
+const updateMyProfile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
 
-const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
-  // console.log(req.user);
+    const result = await userService.updateMyProfile(user as IAuthUser, req);
 
-  const user = req.user;
-
-  // console.log(req.file);
-
-  const result = await userService.updateMyProfile(user, req);
-
-  sendResponse(res, {
-    statusCode: status.OK,
-    success: true,
-    message: "My profile data updated successfully",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: "My profile data updated successfully",
+      data: result,
+    });
+  }
+);
 
 export const userController = {
   createAdmin,
