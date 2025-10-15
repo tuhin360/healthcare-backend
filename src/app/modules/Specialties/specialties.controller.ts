@@ -7,6 +7,7 @@ import { SpecialtiesService } from "./specialties.service";
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
  
+    console.log(req.body);
     const result = await SpecialtiesService.insertIntoDB(req);
 
   sendResponse(res, {
