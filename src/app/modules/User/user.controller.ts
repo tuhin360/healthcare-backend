@@ -108,13 +108,14 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   // console.log(req.user);
 
   const user = req.user;
 
-  const result = await userService.updateMyProfile(user, req.body);
+  // console.log(req.file);
+
+  const result = await userService.updateMyProfile(user, req);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -131,5 +132,5 @@ export const userController = {
   getAllFromDB,
   changeProfileStatus,
   getMyProfile,
-  updateMyProfile
+  updateMyProfile,
 };
