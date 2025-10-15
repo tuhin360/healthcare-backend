@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response, Router } from "express";
+import express, { Router } from "express";
 import { AdminController } from "./admin.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import { adminValidationSchemas } from "./admin.validation";
