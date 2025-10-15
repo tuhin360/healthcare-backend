@@ -12,7 +12,7 @@ import bcrypt from "bcrypt";
 import prisma from "../../../Shared/prisma";
 import { fileUploader } from "../../../helpers/fileUploader";
 import { IFile } from "../../interfaces/file";
-import { Request } from "express";
+import e, { Request } from "express";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelper";
 import { userSearchableFields } from "./user.constant";
@@ -198,17 +198,53 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
   }; // Return final result
 };
 
-const changeProfileStatus = async (id: string, status: UserStatus ) => {
+const changeProfileStatus = async (id: string, status: UserStatus) => {
   const userData = await prisma.user.findFirstOrThrow({
-    where: { id }
+    where: { id },
   });
 
   const updateUserStatus = await prisma.user.update({
     where: { id },
-    data: status 
+    data: status,
   });
 
   return updateUserStatus;
+};
+
+const getMyProfile = async (user) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+    select: {
+      id: true,
+      email: true,
+      needPasswordChange: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  let profileInfo;
+  if (userInfo.role === UserRole.SUPER_ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: { email: userInfo.email },
+    });
+  } else if (userInfo.role === UserRole.ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: { email: userInfo.email },
+    });
+  } else if (userInfo.role === UserRole.DOCTOR) {
+    profileInfo = await prisma.doctor.findUnique({
+      where: { email: userInfo.email },
+    });
+  } else if (userInfo.role === UserRole.PATIENT) {
+    profileInfo = await prisma.patient.findUnique({
+      where: { email: userInfo.email },
+    });
+  }
+
+  return { ...userInfo, ...profileInfo };
 };
 
 export const userService = {
@@ -217,4 +253,5 @@ export const userService = {
   createPatient,
   getAllFromDB,
   changeProfileStatus,
+  getMyProfile,
 };
