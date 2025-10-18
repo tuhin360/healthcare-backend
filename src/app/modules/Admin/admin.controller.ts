@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import {Request, RequestHandler, Response } from "express";
 import { AdminService } from "./admin.service";
 import pick from "../../../Shared/pick";
 import { adminFilterableFields } from "./admin.constant";

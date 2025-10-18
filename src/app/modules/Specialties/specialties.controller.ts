@@ -32,7 +32,7 @@ const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
 // Delete single specialties by id
 const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await specialtiesService.deleteFromDB(id);
+  const result = await specialtiesService.deleteFromDB(id as string);
 
   sendResponse(res, {
     statusCode: status.OK,
