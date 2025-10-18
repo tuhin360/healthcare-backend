@@ -2,34 +2,58 @@ import prisma from "../../../Shared/prisma";
 
 const updateIntoDB = async (id: string, payload: any) => {
   const { specialties, ...doctorData } = payload;
-  console.log("Specialties:", specialties);
-  console.log("Doctor Data:", doctorData);
 
   const doctorInfo = await prisma.doctor.findUniqueOrThrow({
     where: { id },
   });
 
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const updatedDoctorData = await transactionClient.doctor.update({
+  await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.doctor.update({
       where: { id },
       data: doctorData,
-      include: {
-        doctorSpecialties: true,
-      },
     });
 
-    for (const specialtyId of specialties) {
-      const createDoctorSpecialties =
+    if (specialties && specialties.length > 0) {
+      // delete specialties
+      const deleteSpecialtiesIds = specialties.filter(
+        (specialty) => specialty.isDeleted
+      );
+      for (const specialty of deleteSpecialtiesIds) {
+        await transactionClient.doctorSpecialties.deleteMany({
+          where: {
+            doctorId: doctorInfo.id,
+            specialtiesId: specialty.specialtiesId,
+          },
+        });
+      }
+
+      // create specialties
+      const createSpecialtiesIds = specialties.filter(
+        (specialty) => !specialty.isDeleted
+      );
+      console.log(createSpecialtiesIds);
+      for (const specialty of createSpecialtiesIds) {
         await transactionClient.doctorSpecialties.create({
           data: {
             doctorId: doctorInfo.id,
-            specialtiesId: specialtyId,
+            specialtiesId: specialty.specialtiesId,
           },
         });
+      }
     }
-    return updatedDoctorData;
   });
-
+  const result = await prisma.doctor.findUnique({
+    where: {
+      id: doctorInfo.id,
+    },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialties: true,
+        },
+      },
+    },
+  });
   return result;
 };
 
