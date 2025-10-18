@@ -1,14 +1,20 @@
-import express from 'express';
-import { DoctorController } from './doctor.controller';
- 
-
+import express from "express";
+import { DoctorController } from "./doctor.controller";
+import auth from "../../middlewares/auth";
+import { UserRole } from "../../../generated/prisma";
 
 const router = express.Router();
 
-router.patch(
-    "/:id",
-    DoctorController.updateIntoDB
-)
+router.get('/', DoctorController.getAllFromDB);
 
+router.get('/:id', DoctorController.getByIdFromDB);
+
+router.patch("/:id", DoctorController.updateIntoDB);
+
+router.delete(
+    '/:id',
+    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+    DoctorController.deleteFromDB
+);
 
 export const DoctorRoutes: express.Router = router;
