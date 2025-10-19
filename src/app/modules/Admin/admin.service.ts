@@ -142,7 +142,7 @@ const softDeleteFromDB = async (id: string): Promise<Admin> => {
         id,
         isDeleted: false,
       },
-      data: {
+      data: { 
         isDeleted: true,
       },
     });
