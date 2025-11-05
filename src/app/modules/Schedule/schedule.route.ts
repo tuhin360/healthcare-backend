@@ -5,10 +5,18 @@ import auth from "../../middlewares/auth";
 
 const router: Router = express.Router();
 
+
+router.get(
+  "/", 
+  auth(UserRole.DOCTOR),
+  scheduleController.getAllFromDB
+);
+
 router.post(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   scheduleController.insertIntoDB
 );
+
 
 export const ScheduleRoutes: Router = router;
