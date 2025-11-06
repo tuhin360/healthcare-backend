@@ -12,10 +12,33 @@ router.get(
   scheduleController.getAllFromDB
 );
 
+/**
+ * API ENDPOINT: /schedule/:id
+ * 
+ * Get schedule data by id
+ */
+router.get(
+    '/:id',
+    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+    scheduleController.getByIdFromDB
+);
+
+
 router.post(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   scheduleController.insertIntoDB
+);
+
+/**
+ * API ENDPOINT: /schdeule/:id
+ * 
+ * Delete schedule data by id
+ */
+router.delete(
+    '/:id',
+    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+    scheduleController.deleteFromDB
 );
 
 
