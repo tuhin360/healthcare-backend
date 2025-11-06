@@ -5,6 +5,7 @@ import status from "http-status";
 import { DoctorScheduleService } from "./doctorSchedule.service";
 import { IAuthUser } from "../../interfaces/common";
 import pick from "../../../Shared/pick";
+import { scheduleFilterableFields } from "./doctorSchedule.constants";
 
 // Create doctor schedules
 const insertIntoDB = catchAsync(
@@ -60,8 +61,22 @@ const deleteFromDB = catchAsync(
   }
 );
 
+const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
+    const filters = pick(req.query, scheduleFilterableFields);
+    const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+    const result = await DoctorScheduleService.getAllFromDB(filters, options);
+    sendResponse(res, {
+        statusCode: status.OK,
+        success: true,
+        message: 'Doctor Schedule retrieval successfully',
+        meta: result.meta,
+        data: result.data,
+    });
+});
+
 export const DoctorScheduleController = {
   insertIntoDB,
   getMySchedule,
   deleteFromDB,
+  getAllFromDB
 };
