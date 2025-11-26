@@ -12,7 +12,7 @@ const getAllFromDB = async (
   const { limit, page, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, specialties, ...filterData } = filters;
 
-  console.log(specialties);
+  // console.log(specialties);
 
   const andConditions: Prisma.DoctorWhereInput[] = [];
 
@@ -67,19 +67,13 @@ const getAllFromDB = async (
     orderBy:
       options.sortBy && options.sortOrder
         ? { [options.sortBy]: options.sortOrder }
-        : { averageRating: "desc" },
+        : { createdAt: "desc" },
     include: {
       doctorSpecialties: {
         include: {
           specialties: true,
         },
       },
-      // TODO: add review on schema and add here
-      // review: {
-      //     select: {
-      //         rating: true
-      //     }
-      // }
     },
   });
 
