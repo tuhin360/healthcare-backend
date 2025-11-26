@@ -22,7 +22,6 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
       isBooked: false,
     },
   });
-  
 
   const videoCallingId: string = uuidv4();
 
@@ -55,16 +54,26 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
     });
 
     const today = new Date();
-    const transactionId = "PH-HealthCare-"+today.getFullYear()+"-"+today.getMonth()+"-"+today.getHours()+"-"+today.getMinutes();
+    const transactionId =
+      "PH-HealthCare-" +
+      today.getFullYear() +
+      "-" +
+      today.getMonth() +
+      "-" +
+      today.getDay() +
+      "-" +
+      today.getHours() +
+      "-" +
+      today.getMinutes();
+    console.log(transactionId);
 
     await tx.payment.create({
-        data: {
-            appointmentId: appointmentData.id,
-            amount: doctorData.appointmentFee,
-            transactionId,
-        }
-    })
-
+      data: {
+        appointmentId: appointmentData.id,
+        amount: doctorData.appointmentFee,
+        transactionId,
+      },
+    });
 
     return appointmentData;
   });
