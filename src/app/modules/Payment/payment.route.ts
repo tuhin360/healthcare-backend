@@ -1,14 +1,17 @@
 import express from "express";
-import { paymentController } from "./payment.controller";
+import { PaymentController } from "./payment.controller";
 
 
 const router = express.Router();
 
-
+router.get(
+    '/ipn',
+    PaymentController.validatePayment,
+)
 
 router.post(
     '/init-payment/:appointmentId',
-    paymentController.initPayment
+    PaymentController.initPayment
 )
 
 
