@@ -5,8 +5,7 @@ import sendResponse from "../../../Shared/sendResponse";
 import { PaymentService } from "./payment.service";
 
 const initPayment = catchAsync(async (req: Request, res: Response) => {
- 
-    const {appointmentId} = req.params;
+  const { appointmentId } = req.params;
 
   const result = await PaymentService.initPayment(appointmentId);
 
@@ -19,9 +18,6 @@ const initPayment = catchAsync(async (req: Request, res: Response) => {
 });
 
 const validatePayment = catchAsync(async (req: Request, res: Response) => {
- 
-
-
   const result = await PaymentService.validatePayment(req.query);
 
   sendResponse(res, {
@@ -32,8 +28,7 @@ const validatePayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 export const PaymentController = {
-    initPayment,
-    validatePayment,
-}
+  initPayment,
+  validatePayment,
+};
