@@ -4,7 +4,12 @@ import { IAuthUser } from "../../interfaces/common";
 import { v4 as uuidv4 } from "uuid";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelper";
-import { AppointmentStatus, Prisma, UserRole } from "../../../generated/prisma";
+import {
+  AppointmentStatus,
+  PaymentStatus,
+  Prisma,
+  UserRole,
+} from "../../../generated/prisma";
 import ApiError from "../../errors/ApiErrors";
 
 const createAppointment = async (user: IAuthUser, payload: any) => {
@@ -257,9 +262,54 @@ const changeAppointmentStatus = async (
   return result;
 };
 
+const cancelUnpaidAppointment = async () => {
+  const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+  const unpaidAppointments = await prisma.appointment.findMany({
+    where: {
+      createdAt: {
+        lte: thirtyMinAgo,
+      },
+      paymentStatus: PaymentStatus.UNPAID,
+    },
+  });
+
+  const appointmentIdsToCancel = unpaidAppointments.map(
+    (appointment) => appointment.id
+  );
+
+  await prisma.$transaction(async (tx) => {
+    await tx.payment.deleteMany({
+      where: {
+        appointmentId: { in: appointmentIdsToCancel },
+      },
+    });
+
+    await tx.appointment.deleteMany({
+      where: {
+        id: { in: appointmentIdsToCancel },
+      },
+    });
+
+    for (const unpaidAppointment of unpaidAppointments) {
+      await tx.doctorSchedules.updateMany({
+        where: {
+          doctorId: unpaidAppointment.doctorId,
+          scheduleId: unpaidAppointment.scheduleId,
+        },
+        data: {
+          isBooked: false,
+        },
+      });
+    }
+  });
+  console.log("updated");
+};
+
 export const AppointmentService = {
   createAppointment,
   getMyAppointment,
   getAllFromDB,
   changeAppointmentStatus,
+  cancelUnpaidAppointment,
 };
