@@ -6,7 +6,6 @@ import status from "http-status";
 import cookieParser from "cookie-parser";
 import { AppointmentService } from "./app/modules/Appointment/appointment.service";
 import cron from "node-cron";
-import e from "express";
 
 
 const app: Application = express();
