@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 import { Prisma } from "../../generated/prisma";
 
-// global error handler middleware
 const globalErrorHandler = (
   error: any,
   req: Request,
@@ -10,31 +9,40 @@ const globalErrorHandler = (
   next: NextFunction
 ) => {
   let message = error.message || "Something went wrong";
+  let statusCode = error.statusCode || status.INTERNAL_SERVER_ERROR;
 
-   // যদি error এর মধ্যে statusCode থাকে (যেমন ApiError এ থাকে) তাহলে সেটাই use করবো
-  const statusCode = error.statusCode || status.INTERNAL_SERVER_ERROR;
-
-
-  // Handle ZodError
+  /* -------------------- ZOD ERROR -------------------- */
   if (error.name === "ZodError" && error.issues) {
     message = error.issues
-      .map((err: any) => `${err.path.join(".")}: ${err.message}`)
+      .map((err: any) => `${err.path.join(".")} is ${err.message}`)
       .join(", ");
+    statusCode = status.BAD_REQUEST;
   }
 
-  // Handle Prisma known errors
+  /* -------- Prisma Validation Error -------- */
+  if (error instanceof Prisma.PrismaClientValidationError) {
+    message = "Invalid data provided to database query";
+    statusCode = status.BAD_REQUEST;
+  }
+
+  /* -------- Prisma Known Request Error -------- */
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       message = "No record found with the given ID";
+      statusCode = status.NOT_FOUND;
+    }
+
+    if (error.code === "P2002") {
+      message = `Duplicate value for unique field: ${error.meta?.target}`;
+      statusCode = status.CONFLICT;
     }
   }
 
-  res.status(status.INTERNAL_SERVER_ERROR).json({
+  res.status(statusCode).json({
     success: false,
     message,
     error: {
       name: error.name,
-      statusCode,
       code: error.code,
       meta: error.meta,
     },
