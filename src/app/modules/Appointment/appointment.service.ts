@@ -303,7 +303,6 @@ const cancelUnpaidAppointment = async () => {
       });
     }
   });
-  console.log("updated");
 };
 
 export const AppointmentService = {
