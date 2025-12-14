@@ -1,0 +1,17 @@
+import { z } from "zod";
+
+const create = z.object({
+  body: z.object({
+    appointmentId: z.string().min(1, { message: "Appointment Id is required" }),
+
+    rating: z.number().refine((val) => typeof val === "number", {
+      message: "Rating must be a number",
+    }),
+
+    comment: z.string().min(1, { message: "Comment is required" }),
+  }),
+});
+
+export const ReviewValidation = {
+  create,
+};
