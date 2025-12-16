@@ -5,8 +5,12 @@ import { IFilterRequest, ISchedule } from "./schedule.interface";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelper";
 import { IAuthUser } from "../../interfaces/common";
+import { date } from "zod/v4/classic/iso.cjs";
 
-// Insert into DB
+const convertDateTime = (date: Date) => {
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() + offset);
+};
 const insertIntoDB = async (payload: ISchedule): Promise<Schedule[]> => {
   const { startDate, endDate, startTime, endTime } = payload;
 
@@ -38,9 +42,14 @@ const insertIntoDB = async (payload: ISchedule): Promise<Schedule[]> => {
     );
 
     while (startDateTime < endDateTime) {
+      // const scheduleData = {
+      //   startDateTime: startDateTime,
+      //   endDateTime: addMinutes(startDateTime, intervalTime),
+      // };
+      
       const scheduleData = {
-        startDateTime: startDateTime,
-        endDateTime: addMinutes(startDateTime, intervalTime),
+        startDateTime: convertDateTime(startDateTime),
+        endDateTime: convertDateTime(addMinutes(startDateTime, intervalTime)),
       };
 
       const existingSchedule = await prisma.schedule.findFirst({
@@ -157,7 +166,6 @@ const getAllFromDB = async (
   };
 };
 
-
 // get single schedule by id
 const getByIdFromDB = async (id: string): Promise<Schedule | null> => {
   const result = await prisma.schedule.findUnique({
@@ -168,7 +176,6 @@ const getByIdFromDB = async (id: string): Promise<Schedule | null> => {
   //console.log(result?.startDateTime.getHours() + ":" + result?.startDateTime.getMinutes())
   return result;
 };
-
 
 // delete schedule by id
 const deleteFromDB = async (id: string): Promise<Schedule> => {
